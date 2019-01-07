@@ -93,6 +93,7 @@
 ;;; Slime
 
 (use-package slime
+  :ensure t
   :config
   (setq slime-lisp-implementations
         '((sbcl ("/usr/local/bin/sbcl"))
@@ -109,10 +110,13 @@
   :ensure t
   :hook (lisp-mode-hook emacs-lisp-mode-hook))
 
-;;; Eldoc
+;;; Eldoc & Macrostep
 
 (use-package eldoc
   :hook ((python-mode c-mode-common emacs-lisp-mode) . eldoc-mode))
+
+(use-package macrostep
+  :ensure t)
 
 ;;; Flycheck
 
@@ -147,6 +151,18 @@
 (use-package modern-cpp-font-lock
   :ensure t
   :hook (c++-mode .  modern-c++-font-lock-mode))
+
+
+;;; Markdown
+
+(use-package markdown-mode
+  :ensure t
+  :commands (markdown-mode gfm-mode)
+  :mode (("README\\.md\\'" . gfm-mode)
+         ("\\.md\\'" . markdown-mode)
+         ("\\.markdown\\'" . markdown-mode))
+  :init (setq markdown-command "markdown"))
+
 
 ;; GDB
 
