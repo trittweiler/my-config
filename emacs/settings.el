@@ -20,6 +20,7 @@
 
 (setq-default indent-tabs-mode nil)
 (setq-default truncate-lines t)
+(setq-default tab-always-indent 'complete)
 
 ;; M-k to kill line from point to beginning of line. (Reverse of C-k)
 (global-set-key (kbd "M-k")
@@ -72,6 +73,13 @@
   (add-hook h (lambda ()
                 (setq truncate-lines nil))))
 
+;;; Company Mode
+
+(use-package company
+  :ensure t
+  :init
+  (add-hook 'after-init-hook 'global-company-mode))
+
 ;;; which-key
 
 (use-package which-key
@@ -104,11 +112,12 @@
                          slime-sbcl-exts
                          slime-highlight-edits)))
 
+
 ;;; Paredit
 
 (use-package paredit
   :ensure t
-  :hook (lisp-mode-hook emacs-lisp-mode-hook))
+  :hook ((lisp-mode emacs-lisp-mode) . paredit-mode))
 
 ;;; Eldoc & Macrostep
 
@@ -153,7 +162,13 @@
   :hook (c++-mode .  modern-c++-font-lock-mode))
 
 
-;;; Markdown
+;;; RTags
+
+(use-package rtags
+  :ensure t)
+
+
+;;; Misc
 
 (use-package markdown-mode
   :ensure t
@@ -163,6 +178,8 @@
          ("\\.markdown\\'" . markdown-mode))
   :init (setq markdown-command "markdown"))
 
+(use-package systemd
+  :ensure t)
 
 ;; GDB
 
