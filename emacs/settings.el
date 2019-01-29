@@ -178,6 +178,10 @@
          ("\\.markdown\\'" . markdown-mode))
   :init (setq markdown-command "markdown"))
 
+(use-package meson-mode
+  :ensure t
+  :hook (meson-mode-hook . company-mode))
+
 (use-package systemd
   :ensure t)
 
