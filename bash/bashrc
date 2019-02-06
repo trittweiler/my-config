@@ -13,6 +13,12 @@ for dir in ${HOME}/.local/software/**/man; do
     MANPATH="${dir}":"${MANPATH}"
 done
 
+for script in ${HOME}/.local/software/**/bash-completions/*; do
+    if [ -f "${script}" ]; then
+        source "${script}"
+    fi
+done
+
 # Support ~/.local/bin/, for example used by pip
 PATH="${HOME}/.local/bin":"${PATH}"
 for dir in ${HOME}/.local/share/**/man; do
