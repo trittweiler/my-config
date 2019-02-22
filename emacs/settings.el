@@ -60,7 +60,7 @@
 
 ;;; Shell
 
-(autoload 'bash-completion-dynamic-complete 
+(autoload 'bash-completion-dynamic-complete
   "bash-completion"
   "BASH completion hook")
 
@@ -160,6 +160,16 @@
 (use-package modern-cpp-font-lock
   :ensure t
   :hook (c++-mode .  modern-c++-font-lock-mode))
+
+(use-package google-c-style
+  :ensure t
+  :init
+  (add-hook 'c-mode-hook
+            (lambda ()
+              (c-add-style "Google" google-c-style t)))
+  (add-hook 'c++-mode-hook
+            (lambda ()
+              (c-add-style "Google" google-c-style t))))
 
 
 ;;; RTags
