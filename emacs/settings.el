@@ -137,12 +137,19 @@
   :init
   (add-hook 'c-mode-common-hook #'flycheck-mode)
   (add-hook 'python-hook #'flycheck-mode)
+  (add-hook 'emacs-lisp-mode-hook #'flycheck-mode)
   (add-hook 'c-mode-hook
             (lambda ()
-              (setq flycheck-clang-language-standard "c11")))
+              (setq flycheck-clang-language-standard "c11")
+              (setq flycheck-gcc-language-standard "c11")
+              (add-hook 'flycheck-before-syntax-check-hook
+                        'sol--update-flycheck-include-dirs)))
   (add-hook 'c++-mode-hook
             (lambda ()
-              (setq flycheck-clang-language-standard "c++14")))
+              (setq flycheck-clang-language-standard "c++17")
+              (setq flycheck-gcc-language-standard "c++17")
+              (add-hook 'flycheck-before-syntax-check-hook
+                        'sol--update-flycheck-include-dirs)))
   :config
   (setq-default flycheck-clang-pedantic t)
   (setq-default flycheck-clang-warnings
@@ -171,6 +178,45 @@
             (lambda ()
               (c-add-style "Google" google-c-style t))))
 
+
+;;; Buck build system
+
+(eval-when-compile (require 'cl-lib))   ; cl-assert
+
+(defun sol--update-flycheck-include-dirs ()
+  (let ((dirs (sol--collect-generated-include-dirs (buffer-file-name))))
+    (setq-local flycheck-clang-include-path
+                (append flycheck-clang-include-path dirs))
+    (setq-local flycheck-gcc-include-path
+                (append flycheck-clang-include-path dirs))))
+
+(defun sol--collect-generated-include-dirs (&optional filename)
+  (let ((buck-out-directory (sol--find-buck-out filename)))
+    (when buck-out-directory
+      (directory-files-recursively (concat buck-out-directory "gen")
+                                   "^include$\\|^.*#.*,.*headers.*$"
+                                   t))))
+
+(defun sol--find-file-upwards (needle &optional directory levels)
+  (cl-assert (equal (file-name-nondirectory needle) needle))
+  (unless directory
+    (setq directory (file-name-directory
+                     (directory-file-name (buffer-file-name)))))
+  (setq levels (or levels 6))
+  (cond ((<= levels 0) nil)
+        (t
+         (let ((candidate (concat directory needle)))
+           (cond ((file-exists-p candidate) candidate)
+                 (t
+                  (sol--find-file-upwards needle
+                                          (file-name-directory
+                                           (directory-file-name directory))
+                                          (1- levels))))))))
+
+(defun sol--find-buck-out (&optional filename levels)
+  (let ((it (sol--find-file-upwards "buck-out" filename levels)))
+    (when it
+      (file-name-as-directory it))))
 
 ;;; RTags
 
