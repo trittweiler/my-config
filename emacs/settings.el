@@ -21,7 +21,9 @@
 (setq-default indent-tabs-mode nil)
 (setq-default truncate-lines t)
 (setq-default tab-always-indent 'complete)
+(setq-default require-final-newline t)
 
+(setq-default sentence-end-double-space nil)
 ;; M-k to kill line from point to beginning of line. (Reverse of C-k)
 (global-set-key (kbd "M-k")
                 (lambda () (interactive) (kill-line 0)))
@@ -97,6 +99,15 @@
   (setq-default lice:default-license "mit")
   (setq-default lice:copyright-holder
                 "Tobias Rittweiler <trittweiler+opensource@gmail.com>"))
+
+;;; with-editor
+
+;; (use-package with-editor
+;;   :ensure t
+;;   :init
+;;   (add-hook 'shell-mode-hook  'with-editor-export-editor)
+;;   (add-hook 'term-exec-hook   'with-editor-export-editor)
+;;   (add-hook 'eshell-mode-hook 'with-editor-export-editor))
 
 ;;; Slime
 
