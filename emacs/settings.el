@@ -8,6 +8,9 @@
 (eval-when-compile
   (require 'use-package))
 
+;;; Add load-path to lisp packages part of my git repo.
+(add-to-list 'load-path (file-name-directory load-file-name))
+
 ;;; Appearance
 
 (setq-default default-frame-alist '((font . "Cousine:-11")))
@@ -28,8 +31,23 @@
 (global-set-key (kbd "M-k")
                 (lambda () (interactive) (kill-line 0)))
 
+;;; Color Theme
+
+(use-package solarized-theme
+  :ensure t
+  :init
+  (setq solarized-distinct-fringe-background t)
+  (setq solarized-high-contrast-mode-line t)
+  :config
+  (load-theme 'solarized-light t))
+
+;;; Window/Frame movement
+
 ;; Select windows via S-<left> / S-<right> / S-<up> / S-<down>
 (use-package windmove
+  :init
+  (require 'framemove)
+  (setq-default framemove-hook-into-windmove t)
   :config
   (windmove-default-keybindings))
 
