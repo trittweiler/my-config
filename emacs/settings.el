@@ -231,7 +231,7 @@
   (unless directory
     (setq directory (file-name-directory
                      (directory-file-name (buffer-file-name)))))
-  (setq levels (or levels 6))
+  (setq levels (or levels 15))
   (cond ((<= levels 0) nil)
         (t
          (let ((candidate (concat directory needle)))
