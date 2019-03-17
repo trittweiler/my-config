@@ -38,8 +38,12 @@
   :init
   (setq solarized-distinct-fringe-background t)
   (setq solarized-high-contrast-mode-line t)
+  (setq solarized-use-less-bold t)
   :config
-  (load-theme 'solarized-light t))
+  (load-theme 'solarized-light t)
+  (solarized-with-color-variables 'light
+    (custom-theme-set-faces 'solarized-light
+                            `(font-lock-constant-face ((,class (:foreground ,blue)))))))
 
 ;;; Window/Frame movement
 
