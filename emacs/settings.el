@@ -184,6 +184,9 @@
               (add-hook 'flycheck-before-syntax-check-hook
                         'sol--update-flycheck-include-dirs)))
   :config
+  (setq-default flycheck-check-syntax-automatically
+                '(save idle-change mode-enabled))
+  (setq-default flycheck-idle-change-delay 4)
   (setq-default flycheck-clang-pedantic t)
   (setq-default flycheck-clang-warnings
                 '("everything"
