@@ -26,3 +26,7 @@ for dir in ${HOME}/.local/share/**/man; do
 done
 
 export PATH MANPATH
+
+alias l="git log --stat"
+alias s="git status"
+alias d="git diff"
