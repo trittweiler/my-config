@@ -31,6 +31,11 @@
 (global-set-key (kbd "M-k")
                 (lambda () (interactive) (kill-line 0)))
 
+(use-package whitespace-cleanup-mode
+  :ensure t
+  :config
+  (global-whitespace-cleanup-mode))
+
 ;;; Color Theme
 
 (use-package solarized-theme
@@ -260,7 +265,7 @@
   :ensure t)
 
 
-;;; Misc
+;;; Misc modes
 
 (use-package markdown-mode
   :ensure t
