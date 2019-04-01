@@ -30,3 +30,6 @@ export PATH MANPATH
 alias l="git log --stat"
 alias s="git status"
 alias d="git diff"
+alias a="git add"
+alias c="git commit"
+
