@@ -19,6 +19,11 @@ for script in ${HOME}/.local/software/**/bash-completions/*; do
     fi
 done
 
+clang_bash_completions=/usr/lib/llvm-7/share/clang/bash-autocomplete.sh
+if [ -r "${clang_bash_completions}" ]; then
+    source "${clang_bash_completions}"
+fi
+
 # Support ~/.local/bin/, for example used by pip
 PATH="${HOME}/.local/bin":"${PATH}"
 for dir in ${HOME}/.local/share/**/man; do
