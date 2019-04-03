@@ -52,7 +52,9 @@ STJT1=0 # Stopped job threshold 1 value
 STJT2=2 # Stopped job threshold 2 value
 UHS="@"
 
-HST=work
+if [ -n "${OVERRIDE_HOSTNAME}" ]; then
+    HOSTNAME="${OVERRIDE_HOSTNAME}"
+fi
 
 function promptcmd()
 {
@@ -154,7 +156,7 @@ function promptcmd()
         else
                 PS1="${PS1}${sesClr}[${cUSR}\u${cUHS}${UHS}"
         fi
-        PS1="${PS1}${cHST}${HST}${sesClr}]${cLINES}\342\224\200"
+        PS1="${PS1}${cHST}${HOSTNAME}${sesClr}]${cLINES}\342\224\200"
 
         #=========================================================
         # Third Static Block - Current Directory
