@@ -1,0 +1,6 @@
+set editing-mode emacs
+set colored-completion-prefix on
+set colored-stats on
+set mark-directories on
+set skip-completed-text on
+set visible-stats on
