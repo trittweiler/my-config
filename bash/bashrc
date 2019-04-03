@@ -38,3 +38,5 @@ alias d="git diff"
 alias a="git add"
 alias c="git commit"
 
+my_dir="$(dirname "${BASH_SOURCE[0]}")"
+source "${my_dir}"/prompt/loudprompt.sh
