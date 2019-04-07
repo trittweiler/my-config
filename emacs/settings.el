@@ -174,8 +174,14 @@
               ("M-p" . flycheck-previous-error))
   :init
   (add-hook 'c-mode-common-hook #'flycheck-mode)
-  (add-hook 'python-hook #'flycheck-mode)
   (add-hook 'emacs-lisp-mode-hook #'flycheck-mode)
+  (add-hook 'python-mode-hook #'flycheck-mode)
+  (add-hook 'python-mode-hook
+            (lambda ()
+              (add-hook 'flycheck-before-syntax-check-hook
+                        'sol--update-virtualenv-path)
+              (setq-local flycheck-executable-find
+                          #'flycheck-virtualenv-executable-find)))
   (add-hook 'c-mode-hook
             (lambda ()
               (setq flycheck-clang-language-standard "c11")
@@ -188,6 +194,7 @@
               (setq flycheck-gcc-language-standard "c++17")
               (add-hook 'flycheck-before-syntax-check-hook
                         'sol--update-flycheck-include-dirs)))
+
   :config
   (setq-default flycheck-check-syntax-automatically
                 '(save idle-change mode-enabled))
@@ -232,7 +239,7 @@
                 (append flycheck-clang-include-path dirs))))
 
 (defun sol--collect-generated-include-dirs (&optional filename)
-  (let ((buck-out-directory (sol--find-buck-out filename)))
+  (let ((buck-out-directory (sol--find-buck-root filename)))
     (when buck-out-directory
       (directory-files-recursively (concat buck-out-directory "gen")
                                    "^include$\\|^.*#.*,.*headers.*$"
@@ -254,10 +261,31 @@
                                            (directory-file-name directory))
                                           (1- levels))))))))
 
-(defun sol--find-buck-out (&optional filename levels)
-  (let ((it (sol--find-file-upwards "buck-out" filename levels)))
-    (when it
-      (file-name-as-directory it))))
+(defvar-local sol--buck-root-cached nil)
+
+(defun sol--find-buck-root (&optional filename levels)
+  (if (and sol--buck-root-cached
+           (file-exists-p sol--buck-root-cached))
+      sol--buck-root-cached
+    (let ((it (sol--find-file-upwards "buck-out" filename levels)))
+      (when it
+        (setq-local sol--buck-root-cached
+                    (file-name-as-directory it))))))
+
+;;; From https://github.com/lunaryorn/old-emacs-configuration/blob/master/lisp/flycheck-virtualenv.el (GPL3)
+(defun flycheck-virtualenv-executable-find (executable)
+  "Find an EXECUTABLE in the current virtualenv if any."
+  (if (bound-and-true-p python-shell-virtualenv-root)
+      (let ((exec-path (python-shell-calculate-exec-path)))
+        (executable-find executable))
+    (executable-find executable)))
+
+(defun sol--update-virtualenv-path ()
+  (let ((buck-out-directory (sol--find-buck-root (buffer-file-name))))
+    (when buck-out-directory
+      (let ((candidate (concat buck-out-directory "gen/common/python/venv/")))
+        (when (file-exists-p candidate)
+          (setq-local python-shell-virtualenv-root candidate))))))
 
 ;;; RTags
 
@@ -267,6 +295,9 @@
 
 ;;; Misc modes
 
+(use-package bazel-mode
+  :ensure t)
+
 (use-package markdown-mode
   :ensure t
   :commands (markdown-mode gfm-mode)
@@ -275,12 +306,12 @@
          ("\\.markdown\\'" . markdown-mode))
   :init (setq markdown-command "markdown"))
 
-(use-package meson-mode
-  :ensure t
-  :hook (meson-mode-hook . company-mode))
+(use-package protobuf-mode
+  :ensure t)
 
 (use-package systemd
   :ensure t)
+
 
 ;; GDB
 
