@@ -150,7 +150,6 @@
                          slime-sbcl-exts
                          slime-highlight-edits)))
 
-
 ;;; Paredit
 
 (use-package paredit
@@ -292,6 +291,11 @@
 (use-package rtags
   :ensure t)
 
+;;; Python
+
+
+(use-package elpy
+  :ensure t)
 
 ;;; Misc modes
 
