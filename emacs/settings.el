@@ -60,6 +60,11 @@
   :config
   (windmove-default-keybindings))
 
+;; `C-c left` restores previous window configuration
+(use-package winner
+  :config
+  (winner-mode +1))
+
 ;; (use-package color-moccur
 ;;   :ensure t
 ;;   :commands (isearch-moccur isearch-all)
@@ -286,9 +291,19 @@
         (when (file-exists-p candidate)
           (setq-local python-shell-virtualenv-root candidate))))))
 
-;;; RTags
+;;; Projectile
 
-(use-package rtags
+(use-package projectile
+  :ensure t
+   :bind-keymap
+  ("C-c p" . projectile-command-map))
+
+;;; LSP
+
+(use-package lsp-mode
+  :ensure t)
+
+(use-package company-lsp
   :ensure t)
 
 ;;; Python
@@ -296,6 +311,7 @@
 
 (use-package elpy
   :ensure t)
+
 
 ;;; Misc modes
 
