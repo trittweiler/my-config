@@ -1,0 +1,4 @@
+[annotate]
+  jump_arrows = true
+  show_linenr = true
+  show_nr_jumps = true
