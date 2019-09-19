@@ -1,0 +1,24 @@
+# -*- mode:shell-script -*-
+
+# This file is supposed to be sourced from ~/.profile. It contains
+# environmental setups like adaptions of PATH etc. I.e. customizatin
+# that make sense for both non-interactive and interactive shells.
+
+# Support ~/.local/software/<name>/ for manually built and installed
+# software.
+for dir in ${HOME}/.local/software/**/bin; do
+    PATH="${dir}":"${PATH}"
+done
+
+for dir in ${HOME}/.local/software/**/man; do
+    MANPATH="${dir}":"${MANPATH}"
+done
+
+# Support ~/.local/bin/, for example used by pip
+PATH="${HOME}/.local/bin":"${PATH}"
+for dir in ${HOME}/.local/share/**/man; do
+    MANPATH="${dir}":"${MANPATH}"
+done
+
+export PATH MANPATH
+

@@ -1,17 +1,10 @@
 # -*- mode:shell-script -*-
 
+# This file is supposed to be sourced from ~/.bashrc. It contains
+# customizations that are applicable for interactive shells.
+
 # Enable globbing of **
 shopt -s globstar
-
-# Support ~/.local/software/<name>/ for manually built and installed
-# software.
-for dir in ${HOME}/.local/software/**/bin; do
-    PATH="${dir}":"${PATH}"
-done
-
-for dir in ${HOME}/.local/software/**/man; do
-    MANPATH="${dir}":"${MANPATH}"
-done
 
 for script in ${HOME}/.local/software/**/bash-completions/*; do
     if [ -f "${script}" ]; then
@@ -23,14 +16,6 @@ clang_bash_completions=/usr/lib/llvm-7/share/clang/bash-autocomplete.sh
 if [ -r "${clang_bash_completions}" ]; then
     source "${clang_bash_completions}"
 fi
-
-# Support ~/.local/bin/, for example used by pip
-PATH="${HOME}/.local/bin":"${PATH}"
-for dir in ${HOME}/.local/share/**/man; do
-    MANPATH="${dir}":"${MANPATH}"
-done
-
-export PATH MANPATH
 
 alias l="git log --stat"
 alias s="git status"

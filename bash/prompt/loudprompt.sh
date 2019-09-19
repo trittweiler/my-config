@@ -180,19 +180,20 @@ function promptcmd()
 
 function load_prompt () {
     # Get PIDs
-    local parent_process=$(cat /proc/$PPID/cmdline | cut -d \. -f 1)
-    local my_process=$(cat /proc/$$/cmdline | cut -d \. -f 1)
+    # local parent_process=$(cat /proc/$PPID/cmdline | cut -d \. -f 1)
+    # local my_process=$(cat /proc/$$/cmdline | cut -d \. -f 1)
 
-    if  [[ $parent_process == script* ]]; then
-        PROMPT_COMMAND=""
-        PS1="\t - \# - \u@\H { \w }\$ "
+    # if  [[ $parent_process == script* ]]; then
+    #     PROMPT_COMMAND=""
+    #     PS1="\t - \# - \u@\H { \w }\$ "
     # elif [[ $parent_process == emacs* || $parent_process == xemacs* ]]; then
     #     PROMPT_COMMAND=""
     #     PS1="\u@\h { \w }\$ "
-    else
-        export DAY=$(date +%A)
-        PROMPT_COMMAND=promptcmd
-     fi
+    # else
+    #     PROMPT_COMMAND=promptcmd
+    #  fi
+
+    PROMPT_COMMAND=promptcmd
     export PS1 PROMPT_COMMAND
 }
 
