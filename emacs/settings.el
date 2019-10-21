@@ -92,6 +92,12 @@
 
 (setq-default Man-switches "-a")
 
+;;; Regexp replace
+
+(use-package visual-regexp
+  :ensure t
+  :bind ("M-r" . vr/query-replace))
+
 ;;; Shell
 
 (autoload 'bash-completion-dynamic-complete
@@ -186,33 +192,33 @@
                         'sol--update-virtualenv-path)
               (setq-local flycheck-executable-find
                           #'flycheck-virtualenv-executable-find)))
-  (add-hook 'c-mode-hook
-            (lambda ()
-              (setq flycheck-clang-language-standard "c11")
-              (setq flycheck-gcc-language-standard "c11")
-              (add-hook 'flycheck-before-syntax-check-hook
-                        'sol--update-flycheck-include-dirs)))
-  (add-hook 'c++-mode-hook
-            (lambda ()
-              (setq flycheck-clang-language-standard "c++17")
-              (setq flycheck-gcc-language-standard "c++17")
-              (add-hook 'flycheck-before-syntax-check-hook
-                        'sol--update-flycheck-include-dirs)))
+  ;; (add-hook 'c-mode-hook
+  ;;           (lambda ()
+  ;;             (setq flycheck-clang-language-standard "c11")
+  ;;             (setq flycheck-gcc-language-standard "c11")
+  ;;             (add-hook 'flycheck-before-syntax-check-hook
+  ;;                       'sol--update-flycheck-include-dirs)))
+  ;; (add-hook 'c++-mode-hook
+  ;;           (lambda ()
+  ;;             (setq flycheck-clang-language-standard "c++17")
+  ;;             (setq flycheck-gcc-language-standard "c++17")
+  ;;             (add-hook 'flycheck-before-syntax-check-hook
+  ;;                       'sol--update-flycheck-include-dirs)))
 
   :config
   (setq-default flycheck-check-syntax-automatically
                 '(save idle-change mode-enabled))
   (setq-default flycheck-idle-change-delay 4)
-  (setq-default flycheck-clang-pedantic t)
-  (setq-default flycheck-clang-warnings
-                '("everything"
-                  "no-c++98-compat"
-                  "no-c++98-compat-pedantic"
-                  "no-exit-time-destructors"
-                  "no-global-constructors"
-                  "no-missing-prototypes"
-                  "no-unused-macros"
-                  "no-weak-vtables"))
+  ;; (setq-default flycheck-clang-pedantic t)
+  ;; (setq-default flycheck-clang-warnings
+  ;;               '("everything"
+  ;;                 "no-c++98-compat"
+  ;;                 "no-c++98-compat-pedantic"
+  ;;                 "no-exit-time-destructors"
+  ;;                 "no-global-constructors"
+  ;;                 "no-missing-prototypes"
+  ;;                 "no-unused-macros"
+  ;;                 "no-weak-vtables"))
   )
 
 
@@ -295,16 +301,50 @@
 
 (use-package projectile
   :ensure t
-   :bind-keymap
+  :demand t       ; always load for (featurep 'projectile) in lsp-mode
+  :bind-keymap
   ("C-c p" . projectile-command-map))
+
 
 ;;; LSP
 
 (use-package lsp-mode
-  :ensure t)
+  :ensure t
+  :config
+  (setq-default lsp-auto-guess-root t)
+  (setq-default lsp-clients-clangd-args '("-background-index"))
+  :init
+  (add-hook 'c++-mode-hook #'lsp)
+  (add-hook 'c-mode-hook #'lsp)
+  (add-hook 'scala-mode-hook #'lsp))
 
 (use-package company-lsp
   :ensure t)
+
+(use-package flymake
+  :ensure t
+  :bind (:map flymake-mode-map
+              ("M-n" . flymake-goto-next-error)
+              ("M-p" . flymake-goto-prev-error)))
+
+
+;;; Scala
+
+(use-package scala-mode
+  :ensure t
+  :mode "\\.s\\(cala\\|bt\\)$")
+
+(use-package sbt-mode
+  :ensure t
+  :commands sbt-start sbt-command
+  :config
+  ;; WORKAROUND: https://github.com/ensime/emacs-sbt-mode/issues/31
+  ;; allows using SPACE when in the minibuffer
+  (substitute-key-definition
+   'minibuffer-complete-word
+   'self-insert-command
+   minibuffer-local-completion-map))
+
 
 ;;; Python
 
@@ -336,21 +376,3 @@
 ;; GDB
 
 (setq-default gdb-many-windows t)
-
-;;; Custom
-
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   (quote
-    (use-package strace-mode flymd gh-md markdown-mode markdown-mode+ markdown-preview-eww elf-mode elfeed elfeed-goodies elfeed-org jdee cmake-mode google-c-style multiple-cursors modern-cpp-font-lock ac-rtags company-rtags flycheck-rtags helm-rtags ivy-rtags rtags lice org which-key ggtags browse-kill-ring bash-completion flycheck flycheck-mix git git-commit magit magit-imerge paredit slime))))
-
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
