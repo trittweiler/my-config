@@ -46,9 +46,11 @@
   (setq solarized-use-less-bold t)
   :config
   (load-theme 'solarized-light t)
-  (solarized-with-color-variables 'light
-    (custom-theme-set-faces 'solarized-light
-                            `(font-lock-constant-face ((,class (:foreground ,blue)))))))
+  ;; Yuck. This has to use eval after changing the macro's signature:
+  ;;   https://github.com/bbatsov/solarized-emacs/commit/b47d513aa4a452ae7875b65c3f7ee006444711c8
+  (eval `(solarized-with-color-variables 'light ,solarized-light-color-palette-alist
+           (custom-theme-set-faces 'solarized-light
+                                   `(font-lock-constant-face ((,class (:foreground ,blue))))))))
 
 ;;; Window/Frame movement
 
@@ -332,7 +334,11 @@
 
 (use-package scala-mode
   :ensure t
-  :mode "\\.s\\(cala\\|bt\\)$")
+  :mode "\\.s\\(cala\\|bt\\)$"
+  :config
+  (setq-default scala-indent:align-parameters t)
+  (setq-default scala-indent:align-forms t)
+  )
 
 (use-package sbt-mode
   :ensure t
