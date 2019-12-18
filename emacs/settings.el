@@ -4,6 +4,7 @@
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
 (package-initialize)
+(package-install 'use-package)
 
 (eval-when-compile
   (require 'use-package))
@@ -48,9 +49,11 @@
   (load-theme 'solarized-light t)
   ;; Yuck. This has to use eval after changing the macro's signature:
   ;;   https://github.com/bbatsov/solarized-emacs/commit/b47d513aa4a452ae7875b65c3f7ee006444711c8
-  (eval `(solarized-with-color-variables 'light ,solarized-light-color-palette-alist
-           (custom-theme-set-faces 'solarized-light
-                                   `(font-lock-constant-face ((,class (:foreground ,blue))))))))
+  ;; (eval `(solarized-with-color-variables 'light ,solarized-light-color-palette-alist
+  ;;          (custom-theme-set-faces 'solarized-light
+  ;;                                  `(font-lock-constant-face ((,class (:foreground ,blue)))))))
+  )
+
 
 ;;; Window/Frame movement
 
@@ -89,6 +92,9 @@
 ;; (global-set-key (kbd "<kp-4>")
 ;;                 (lambda () (interactive) (insert "ü")))
 
+;;; Emacs server
+
+(server-start)
 
 ;;; Man
 
@@ -239,65 +245,65 @@
               (c-add-style "Google" google-c-style t))))
 
 
-;;; Buck build system
+;; ;;; Buck build system
 
-(eval-when-compile (require 'cl-lib))   ; cl-assert
+;; (eval-when-compile (require 'cl-lib))   ; cl-assert
 
-(defun sol--update-flycheck-include-dirs ()
-  (let ((dirs (sol--collect-generated-include-dirs (buffer-file-name))))
-    (setq-local flycheck-clang-include-path
-                (append flycheck-clang-include-path dirs))
-    (setq-local flycheck-gcc-include-path
-                (append flycheck-clang-include-path dirs))))
+;; (defun sol--update-flycheck-include-dirs ()
+;;   (let ((dirs (sol--collect-generated-include-dirs (buffer-file-name))))
+;;     (setq-local flycheck-clang-include-path
+;;                 (append flycheck-clang-include-path dirs))
+;;     (setq-local flycheck-gcc-include-path
+;;                 (append flycheck-clang-include-path dirs))))
 
-(defun sol--collect-generated-include-dirs (&optional filename)
-  (let ((buck-out-directory (sol--find-buck-root filename)))
-    (when buck-out-directory
-      (directory-files-recursively (concat buck-out-directory "gen")
-                                   "^include$\\|^.*#.*,.*headers.*$"
-                                   t))))
+;; (defun sol--collect-generated-include-dirs (&optional filename)
+;;   (let ((buck-out-directory (sol--find-buck-root filename)))
+;;     (when buck-out-directory
+;;       (directory-files-recursively (concat buck-out-directory "gen")
+;;                                    "^include$\\|^.*#.*,.*headers.*$"
+;;                                    t))))
 
-(defun sol--find-file-upwards (needle &optional directory levels)
-  (cl-assert (equal (file-name-nondirectory needle) needle))
-  (unless directory
-    (setq directory (file-name-directory
-                     (directory-file-name (buffer-file-name)))))
-  (setq levels (or levels 15))
-  (cond ((<= levels 0) nil)
-        (t
-         (let ((candidate (concat directory needle)))
-           (cond ((file-exists-p candidate) candidate)
-                 (t
-                  (sol--find-file-upwards needle
-                                          (file-name-directory
-                                           (directory-file-name directory))
-                                          (1- levels))))))))
+;; (defun sol--find-file-upwards (needle &optional directory levels)
+;;   (cl-assert (equal (file-name-nondirectory needle) needle))
+;;   (unless directory
+;;     (setq directory (file-name-directory
+;;                      (directory-file-name (buffer-file-name)))))
+;;   (setq levels (or levels 15))
+;;   (cond ((<= levels 0) nil)
+;;         (t
+;;          (let ((candidate (concat directory needle)))
+;;            (cond ((file-exists-p candidate) candidate)
+;;                  (t
+;;                   (sol--find-file-upwards needle
+;;                                           (file-name-directory
+;;                                            (directory-file-name directory))
+;;                                           (1- levels))))))))
 
-(defvar-local sol--buck-root-cached nil)
+;; (defvar-local sol--buck-root-cached nil)
 
-(defun sol--find-buck-root (&optional filename levels)
-  (if (and sol--buck-root-cached
-           (file-exists-p sol--buck-root-cached))
-      sol--buck-root-cached
-    (let ((it (sol--find-file-upwards "buck-out" filename levels)))
-      (when it
-        (setq-local sol--buck-root-cached
-                    (file-name-as-directory it))))))
+;; (defun sol--find-buck-root (&optional filename levels)
+;;   (if (and sol--buck-root-cached
+;;            (file-exists-p sol--buck-root-cached))
+;;       sol--buck-root-cached
+;;     (let ((it (sol--find-file-upwards "buck-out" filename levels)))
+;;       (when it
+;;         (setq-local sol--buck-root-cached
+;;                     (file-name-as-directory it))))))
 
-;;; From https://github.com/lunaryorn/old-emacs-configuration/blob/master/lisp/flycheck-virtualenv.el (GPL3)
-(defun flycheck-virtualenv-executable-find (executable)
-  "Find an EXECUTABLE in the current virtualenv if any."
-  (if (bound-and-true-p python-shell-virtualenv-root)
-      (let ((exec-path (python-shell-calculate-exec-path)))
-        (executable-find executable))
-    (executable-find executable)))
+;; ;;; From https://github.com/lunaryorn/old-emacs-configuration/blob/master/lisp/flycheck-virtualenv.el (GPL3)
+;; (defun flycheck-virtualenv-executable-find (executable)
+;;   "Find an EXECUTABLE in the current virtualenv if any."
+;;   (if (bound-and-true-p python-shell-virtualenv-root)
+;;       (let ((exec-path (python-shell-calculate-exec-path)))
+;;         (executable-find executable))
+;;     (executable-find executable)))
 
-(defun sol--update-virtualenv-path ()
-  (let ((buck-out-directory (sol--find-buck-root (buffer-file-name))))
-    (when buck-out-directory
-      (let ((candidate (concat buck-out-directory "gen/common/python/venv/")))
-        (when (file-exists-p candidate)
-          (setq-local python-shell-virtualenv-root candidate))))))
+;; (defun sol--update-virtualenv-path ()
+;;   (let ((buck-out-directory (sol--find-buck-root (buffer-file-name))))
+;;     (when buck-out-directory
+;;       (let ((candidate (concat buck-out-directory "gen/common/python/venv/")))
+;;         (when (file-exists-p candidate)
+;;           (setq-local python-shell-virtualenv-root candidate))))))
 
 ;;; Projectile
 
@@ -354,9 +360,13 @@
 
 ;;; Python
 
-
 (use-package elpy
   :ensure t)
+
+
+;;; GDB
+
+(setq-default gdb-many-windows t)
 
 
 ;;; Misc modes
@@ -378,7 +388,9 @@
 (use-package systemd
   :ensure t)
 
-
-;; GDB
-
-(setq-default gdb-many-windows t)
+(use-package magit
+  :ensure t
+  :bind (("s-g" . magit-file-dispatch))
+  :init
+  (add-hook 'git-commit-setup-hook 'git-commit-turn-on-flyspell)
+  (setq-default flyspell-issue-message-flag nil))
