@@ -10,15 +10,14 @@ for dir in ${HOME}/.local/software/**/bin; do
     PATH="${dir}":"${PATH}"
 done
 
-for dir in ${HOME}/.local/software/**/man; do
-    MANPATH="${dir}":"${MANPATH}"
-done
-
-# Support ~/.local/bin/, for example used by pip
+# Support ~/.local/bin/ for example used by pip
 PATH="${HOME}/.local/bin":"${PATH}"
-for dir in ${HOME}/.local/share/**/man; do
+
+for dir in ${HOME}/.local/**/man; do
     MANPATH="${dir}":"${MANPATH}"
 done
 
-export PATH MANPATH
+for dir in ${HOME}/.local/**/info; do
+    INFOPATH="${dir}":"${INFOPATH}"
+done
 

@@ -3,8 +3,9 @@
 # This file is supposed to be sourced from ~/.bashrc. It contains
 # customizations that are applicable for interactive shells.
 
-# Enable globbing of **
-shopt -s globstar
+export EDITOR=emacsclient
+
+shopt -s globstar # Enable globbing of **
 
 for script in ${HOME}/.local/software/**/bash-completions/*; do
     if [ -f "${script}" ]; then
@@ -12,10 +13,13 @@ for script in ${HOME}/.local/software/**/bash-completions/*; do
     fi
 done
 
-clang_bash_completions=/usr/lib/llvm-7/share/clang/bash-autocomplete.sh
-if [ -r "${clang_bash_completions}" ]; then
-    source "${clang_bash_completions}"
-fi
+for version in 9 8 7; do
+    clang_bash_completions=/usr/lib/llvm-${version}/share/clang/bash-autocomplete.sh
+    if [ -r "${clang_bash_completions}" ]; then
+        source "${clang_bash_completions}"
+        break
+    fi
+done
 
 alias l="git log --stat"
 alias s="git status"
@@ -23,5 +27,9 @@ alias d="git diff"
 alias a="git add"
 alias c="git commit"
 
-my_dir="$(dirname "${BASH_SOURCE[0]}")"
-source "${my_dir}"/prompt/loudprompt.sh
+function find_source_root()
+{
+    dirname "$(readlink -f "${BASH_SOURCE[0]}")"
+}
+
+source "$(find_source_root)"/prompt/loudprompt.sh
