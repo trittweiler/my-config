@@ -1,5 +1,10 @@
 [push]
         default = upstream
+[color "diff"]
+        whitespace = red reverse
+[diff]
+        wsErrorHighlight = all
+
 [alias]
         cleanall = !git clean -dxff && git submodule foreach --recursive "git clean -dxff"
         lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
