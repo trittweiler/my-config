@@ -1,0 +1,15 @@
+escape ^Zz
+
+# Make mousewheel scroll through the terminal
+# (Note: this is not the same as scrolling through screens buffer)
+termcapinfo xterm* ti@:te@
+
+hardstatus alwayslastline
+hardstatus string '%{= kG}[%{G}%H%? %1`%?%{g}][%= %{= kw}%-w%{+b yk} %n*%t%?(%u)%? %{-}%+w %=%{g}][%{B}%m/%d %{W}%C%A%{g}]'
+
+# huge scrollback buffer
+defscrollback 50000
+
+screen -t htop    0 htop
+screen -t Shell1  1 bash
+screen -t Shell2  2 bash
