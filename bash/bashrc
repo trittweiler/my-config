@@ -33,3 +33,5 @@ function find_source_root()
 }
 
 source "$(find_source_root)"/prompt/loudprompt.sh
+
+export GCC_COLORS='error=01;31;05:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'

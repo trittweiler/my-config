@@ -1,8 +1,14 @@
 # -*- mode:shell-script -*-
 
 # This file is supposed to be sourced from ~/.profile. It contains
-# environmental setups like adaptions of PATH etc. I.e. customizatin
+# environmental setups like adaptions of PATH etc. I.e. customizations
 # that make sense for both non-interactive and interactive shells.
+
+shopt -s globstar # Enable globbing of **
+
+for dir in /opt/*/bin; do
+    PATH="${dir}":"${PATH}"
+done
 
 # Support ~/.local/software/<name>/ for manually built and installed
 # software.
