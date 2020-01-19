@@ -1,4 +1,8 @@
+startup_message off
+
 escape ^Zz
+
+altscreen on
 
 # Make mousewheel scroll through the terminal
 # (Note: this is not the same as scrolling through screens buffer)
