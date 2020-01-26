@@ -185,49 +185,49 @@
 
 ;;; Flycheck
 
-(use-package flycheck
-  :ensure t
-  :bind (:map flycheck-mode-map
-              ("M-n" . flycheck-next-error)
-              ("M-p" . flycheck-previous-error))
-  :init
-  (add-hook 'c-mode-common-hook #'flycheck-mode)
-  (add-hook 'emacs-lisp-mode-hook #'flycheck-mode)
-  (add-hook 'python-mode-hook #'flycheck-mode)
-  (add-hook 'python-mode-hook
-            (lambda ()
-              (add-hook 'flycheck-before-syntax-check-hook
-                        'sol--update-virtualenv-path)
-              (setq-local flycheck-executable-find
-                          #'flycheck-virtualenv-executable-find)))
-  ;; (add-hook 'c-mode-hook
-  ;;           (lambda ()
-  ;;             (setq flycheck-clang-language-standard "c11")
-  ;;             (setq flycheck-gcc-language-standard "c11")
-  ;;             (add-hook 'flycheck-before-syntax-check-hook
-  ;;                       'sol--update-flycheck-include-dirs)))
-  ;; (add-hook 'c++-mode-hook
-  ;;           (lambda ()
-  ;;             (setq flycheck-clang-language-standard "c++17")
-  ;;             (setq flycheck-gcc-language-standard "c++17")
-  ;;             (add-hook 'flycheck-before-syntax-check-hook
-  ;;                       'sol--update-flycheck-include-dirs)))
+;; (use-package flycheck
+;;   :ensure t
+;;   :bind (:map flycheck-mode-map
+;;               ("M-n" . flycheck-next-error)
+;;               ("M-p" . flycheck-previous-error))
+;;   :init
+;;   (add-hook 'c-mode-common-hook #'flycheck-mode)
+;;   (add-hook 'emacs-lisp-mode-hook #'flycheck-mode)
+;;   ;; (add-hook 'python-mode-hook #'flycheck-mode)
+;;   ;; (add-hook 'python-mode-hook
+;;   ;;           (lambda ()
+;;   ;;             (add-hook 'flycheck-before-syntax-check-hook
+;;   ;;                       'sol--update-virtualenv-path)
+;;   ;;             (setq-local flycheck-executable-find
+;;   ;;                         #'flycheck-virtualenv-executable-find)))
+;;   ;; (add-hook 'c-mode-hook
+;;   ;;           (lambda ()
+;;   ;;             (setq flycheck-clang-language-standard "c11")
+;;   ;;             (setq flycheck-gcc-language-standard "c11")
+;;   ;;             (add-hook 'flycheck-before-syntax-check-hook
+;;   ;;                       'sol--update-flycheck-include-dirs)))
+;;   ;; (add-hook 'c++-mode-hook
+;;   ;;           (lambda ()
+;;   ;;             (setq flycheck-clang-language-standard "c++17")
+;;   ;;             (setq flycheck-gcc-language-standard "c++17")
+;;   ;;             (add-hook 'flycheck-before-syntax-check-hook
+;;   ;;                       'sol--update-flycheck-include-dirs)))
 
-  :config
-  (setq-default flycheck-check-syntax-automatically
-                '(save idle-change mode-enabled))
-  (setq-default flycheck-idle-change-delay 4)
-  ;; (setq-default flycheck-clang-pedantic t)
-  ;; (setq-default flycheck-clang-warnings
-  ;;               '("everything"
-  ;;                 "no-c++98-compat"
-  ;;                 "no-c++98-compat-pedantic"
-  ;;                 "no-exit-time-destructors"
-  ;;                 "no-global-constructors"
-  ;;                 "no-missing-prototypes"
-  ;;                 "no-unused-macros"
-  ;;                 "no-weak-vtables"))
-  )
+;;   :config
+;;   (setq-default flycheck-check-syntax-automatically
+;;                 '(save idle-change mode-enabled))
+;;   (setq-default flycheck-idle-change-delay 4)
+;;   ;; (setq-default flycheck-clang-pedantic t)
+;;   ;; (setq-default flycheck-clang-warnings
+;;   ;;               '("everything"
+;;   ;;                 "no-c++98-compat"
+;;   ;;                 "no-c++98-compat-pedantic"
+;;   ;;                 "no-exit-time-destructors"
+;;   ;;                 "no-global-constructors"
+;;   ;;                 "no-missing-prototypes"
+;;   ;;                 "no-unused-macros"
+;;   ;;                 "no-weak-vtables"))
+;;   )
 
 
 (use-package modern-cpp-font-lock
@@ -319,15 +319,39 @@
 (use-package lsp-mode
   :ensure t
   :config
+  (setq-default lsp-log-io t)
   (setq-default lsp-auto-guess-root t)
+  (setq-default lsp-prefer-flymake t)
+  (setq-default lsp-enable-xref t)
+  (setq-default lsp-eldoc-render-all nil)
+  (setq-default lsp-eldoc-hook '(trittweiler:lsp-eldoc))
+  (setq-default lsp-signature-auto-activate nil)
+  (setq-default lsp-signature-render-documentation nil)
   (setq-default lsp-clients-clangd-args '("-background-index"))
   :init
   (add-hook 'c++-mode-hook #'lsp)
   (add-hook 'c-mode-hook #'lsp)
-  (add-hook 'scala-mode-hook #'lsp))
+  (add-hook 'scala-mode-hook #'lsp)
+  (add-hook 'python-mode-hook #'lsp))
+
+(defun trittweiler:lsp-eldoc ()
+  "Display signature info (based on `textDocument/signatureHelp')"
+  (lsp-request-async "textDocument/signatureHelp"
+                     (lsp--text-document-position-params)
+                     #'(lambda (signature)
+                         (let ((message (lsp--signature->message signature)))
+                           (when (s-present? message)
+                             (message "[%s]" message)
+                             (lsp--eldoc-message
+                              ;; Remove those pesky "1/1 "
+                              (replace-regexp-in-string "^[0-9/|│ ]*" "" message)))))
+                     :cancel-token :signature))
+
+
 
 (use-package company-lsp
-  :ensure t)
+  :ensure t
+  :commands company-lsp)
 
 (use-package flymake
   :ensure t
@@ -360,8 +384,8 @@
 
 ;;; Python
 
-(use-package elpy
-  :ensure t)
+;; (use-package elpy
+;;   :ensure t)
 
 
 ;;; GDB
