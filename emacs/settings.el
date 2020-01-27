@@ -126,7 +126,14 @@
 (use-package company
   :ensure t
   :init
-  (add-hook 'after-init-hook 'global-company-mode))
+  (add-hook 'after-init-hook 'global-company-mode)
+  :config
+  (add-hook 'company-mode-hook (lambda ()
+                                 (add-hook 'completion-at-point-functions
+                                           (lambda ()
+                                             (lambda () (company-complete)))
+                                           nil
+                                           t))))
 
 ;;; which-key
 
@@ -321,6 +328,8 @@
   :config
   (setq-default lsp-log-io t)
   (setq-default lsp-auto-guess-root t)
+  (setq-default lsp-prefer-capf t)                  ; we do our own setup
+  (setq-default lsp-enable-completion-at-point nil) ;  for company-mode
   (setq-default lsp-prefer-flymake t)
   (setq-default lsp-enable-xref t)
   (setq-default lsp-eldoc-render-all nil)
@@ -328,6 +337,7 @@
   (setq-default lsp-signature-auto-activate nil)
   (setq-default lsp-signature-render-documentation nil)
   (setq-default lsp-clients-clangd-args '("-background-index"))
+  (use-package company-lsp)
   :init
   (add-hook 'c++-mode-hook #'lsp)
   (add-hook 'c-mode-hook #'lsp)
@@ -351,7 +361,9 @@
 
 (use-package company-lsp
   :ensure t
-  :commands company-lsp)
+  :commands company-lsp
+  :config
+  (add-to-list 'company-backends 'company-lsp))
 
 (use-package flymake
   :ensure t
