@@ -192,49 +192,18 @@
 
 ;;; Flycheck
 
-;; (use-package flycheck
-;;   :ensure t
-;;   :bind (:map flycheck-mode-map
-;;               ("M-n" . flycheck-next-error)
-;;               ("M-p" . flycheck-previous-error))
-;;   :init
-;;   (add-hook 'c-mode-common-hook #'flycheck-mode)
-;;   (add-hook 'emacs-lisp-mode-hook #'flycheck-mode)
-;;   ;; (add-hook 'python-mode-hook #'flycheck-mode)
-;;   ;; (add-hook 'python-mode-hook
-;;   ;;           (lambda ()
-;;   ;;             (add-hook 'flycheck-before-syntax-check-hook
-;;   ;;                       'sol--update-virtualenv-path)
-;;   ;;             (setq-local flycheck-executable-find
-;;   ;;                         #'flycheck-virtualenv-executable-find)))
-;;   ;; (add-hook 'c-mode-hook
-;;   ;;           (lambda ()
-;;   ;;             (setq flycheck-clang-language-standard "c11")
-;;   ;;             (setq flycheck-gcc-language-standard "c11")
-;;   ;;             (add-hook 'flycheck-before-syntax-check-hook
-;;   ;;                       'sol--update-flycheck-include-dirs)))
-;;   ;; (add-hook 'c++-mode-hook
-;;   ;;           (lambda ()
-;;   ;;             (setq flycheck-clang-language-standard "c++17")
-;;   ;;             (setq flycheck-gcc-language-standard "c++17")
-;;   ;;             (add-hook 'flycheck-before-syntax-check-hook
-;;   ;;                       'sol--update-flycheck-include-dirs)))
-
-;;   :config
-;;   (setq-default flycheck-check-syntax-automatically
-;;                 '(save idle-change mode-enabled))
-;;   (setq-default flycheck-idle-change-delay 4)
-;;   ;; (setq-default flycheck-clang-pedantic t)
-;;   ;; (setq-default flycheck-clang-warnings
-;;   ;;               '("everything"
-;;   ;;                 "no-c++98-compat"
-;;   ;;                 "no-c++98-compat-pedantic"
-;;   ;;                 "no-exit-time-destructors"
-;;   ;;                 "no-global-constructors"
-;;   ;;                 "no-missing-prototypes"
-;;   ;;                 "no-unused-macros"
-;;   ;;                 "no-weak-vtables"))
-;;   )
+(use-package flycheck
+  :ensure t
+  :bind (:map flycheck-mode-map
+              ("M-n" . flycheck-next-error)
+              ("M-p" . flycheck-previous-error))
+  :init
+  (add-hook 'emacs-lisp-mode-hook #'flycheck-mode)
+  (add-hook 'protobuf-mode-hook #'flycheck-mode)
+  :config
+  (setq-default flycheck-check-syntax-automatically
+                '(save idle-change mode-enabled))
+  (setq-default flycheck-idle-change-delay 4))
 
 
 (use-package modern-cpp-font-lock
