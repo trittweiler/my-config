@@ -30,6 +30,7 @@ cRWN=$RED # Color of root warning
 cPWD=$BLUE # Color of current directory
 cCMD=$DEFAULT # Color of the command you type
 cGIT=$CYAN # Color of git branch
+cVENV=$PINK
 
 # Enable block
 eNL=1  # Have a newline between previous command output and new prompt
@@ -42,6 +43,7 @@ eSTJ=1 # Track stopped jobs
 eUSH=1 # Show user and host
 ePWD=1 # Show current directory
 eGIT=1 # Show git branch
+eVENV=1 # show python virtualenv
 
 # Block settins
 MPXT1=0 # Terminal multiplexer threshold 1 value
@@ -169,6 +171,13 @@ function promptcmd()
             local branch="$(git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/')"
             if [ -n "${branch}" ]; then
                 PS1="${PS1}${cLINES}\342\224\200${cBRACKETS}(${cGIT}${branch}${cBRACKETS})"
+            fi
+        fi
+
+        if [ $eVENV -eq 1 ]; then
+            if test -n "$VIRTUAL_ENV" ; then
+                local venv="$(basename "$VIRTUAL_ENV")"
+                PS1="${PS1}${cLINES}\342\224\200${cBRACKETS}(${cVENV}${venv}${cBRACKETS})"
             fi
         fi
 
