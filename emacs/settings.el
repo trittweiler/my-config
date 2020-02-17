@@ -292,8 +292,12 @@
 
 ;;; LSP
 
+(use-package ccls
+  :ensure t)
+
 (use-package lsp-mode
   :ensure t
+  :after (ccls)
   :config
   (setq-default lsp-log-io t)
   (setq-default lsp-auto-guess-root t)
@@ -308,6 +312,7 @@
   (setq-default lsp-clients-clangd-args '("-background-index"))
   (use-package company-lsp)
   :init
+  (require 'ccls)
   (add-hook 'c++-mode-hook #'lsp)
   (add-hook 'c-mode-hook #'lsp)
   (add-hook 'scala-mode-hook #'lsp)
