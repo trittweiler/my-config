@@ -10,11 +10,12 @@
   (require 'use-package))
 
 ;;; Add load-path to lisp packages part of my git repo.
-(add-to-list 'load-path (file-name-directory load-file-name))
+(when load-file-name
+  (add-to-list 'load-path (file-name-directory load-file-name)))
 
 ;;; Appearance
 
-(setq-default default-frame-alist '((font . "Cousine:-11")))
+(set-frame-font "Cousine 10" nil t)
 
 ;;; General
 
@@ -22,12 +23,19 @@
 (scroll-bar-mode -1)
 (column-number-mode 1)
 
+(setq-default load-prefer-newer t)
 (setq-default indent-tabs-mode nil)
 (setq-default truncate-lines t)
 (setq-default tab-always-indent 'complete)
 (setq-default require-final-newline t)
-
 (setq-default sentence-end-double-space nil)
+
+(let ((programming-mode-hooks
+       '(c-mode-common-hook python-mode-hook lisp-mode-hook emacs-lisp-mode-hook)))
+  (dolist (h programming-mode-hooks)
+    (add-hook h (lambda ()
+                  (setq-local show-trailing-whitespace t)))))
+
 ;; M-k to kill line from point to beginning of line. (Reverse of C-k)
 (global-set-key (kbd "M-k")
                 (lambda () (interactive) (kill-line 0)))
@@ -70,6 +78,11 @@
   :config
   (winner-mode +1))
 
+(use-package find-file
+  :bind (("C-x C-o" . 'ff-find-other-file))
+  :init
+  (setq-default ff-always-in-other-window t))
+
 ;; (use-package color-moccur
 ;;   :ensure t
 ;;   :commands (isearch-moccur isearch-all)
@@ -85,16 +98,17 @@
 
 
 ;; Fn-o => ö, Fn-u => ü, Fn-a => ä
-;; (global-set-key (kbd "<kp-6>")
-;;                 (lambda () (interactive) (insert "ö")))
-;; (global-set-key (kbd "<XF86Launch3>")
-;;                 (lambda () (interactive) (insert "ä")))
-;; (global-set-key (kbd "<kp-4>")
-;;                 (lambda () (interactive) (insert "ü")))
+(global-set-key (kbd "<kp-6>")
+                (lambda () (interactive) (insert "ö")))
+(global-set-key (kbd "<XF86Launch3>")
+                (lambda () (interactive) (insert "ä")))
+(global-set-key (kbd "<kp-4>")
+                (lambda () (interactive) (insert "ü")))
 
 ;;; Emacs server
 
-(server-start)
+(when window-system
+  (server-start))
 
 ;;; Man
 
@@ -128,12 +142,13 @@
   :init
   (add-hook 'after-init-hook 'global-company-mode)
   :config
-  (add-hook 'company-mode-hook (lambda ()
-                                 (add-hook 'completion-at-point-functions
-                                           (lambda ()
-                                             (lambda () (company-complete)))
-                                           nil
-                                           t))))
+  (add-hook 'company-mode-hook
+            (lambda ()
+              (add-hook 'completion-at-point-functions
+                        (lambda ()
+                          (lambda () (company-complete)))
+                        nil
+                        t))))
 
 ;;; which-key
 
@@ -168,7 +183,7 @@
   :ensure t
   :config
   (setq slime-lisp-implementations
-        '((sbcl ("/usr/local/bin/sbcl"))
+        '((sbcl ("/home/trittweiler/software/sbcl/bin/sbcl"))
           (ccl  ("/home/trittweiler/software/ccl-1.11.5/bin/ccl"))))
   (setq slime-default-lisp 'sbcl)
   (setq slime-contribs '(slime-fancy
@@ -180,7 +195,9 @@
 
 (use-package paredit
   :ensure t
-  :hook ((lisp-mode emacs-lisp-mode) . paredit-mode))
+  :hook ((lisp-mode emacs-lisp-mode) . paredit-mode)
+  :bind (:map paredit-mode-map
+         ("M-?" . xref-find-references)))
 
 ;;; Eldoc & Macrostep
 
@@ -188,22 +205,11 @@
   :hook ((python-mode c-mode-common emacs-lisp-mode) . eldoc-mode))
 
 (use-package macrostep
-  :ensure t)
-
-;;; Flycheck
-
-(use-package flycheck
   :ensure t
-  :bind (:map flycheck-mode-map
-              ("M-n" . flycheck-next-error)
-              ("M-p" . flycheck-previous-error))
-  :init
-  (add-hook 'emacs-lisp-mode-hook #'flycheck-mode)
-  (add-hook 'protobuf-mode-hook #'flycheck-mode)
+  :bind ("C-c C-m" . macrostep-expand)
   :config
-  (setq-default flycheck-check-syntax-automatically
-                '(save idle-change mode-enabled))
-  (setq-default flycheck-idle-change-delay 4))
+  (setq-default macrostep-expand-in-separate-buffer t))
+
 
 
 (use-package modern-cpp-font-lock
@@ -220,158 +226,50 @@
             (lambda ()
               (c-add-style "Google" google-c-style t))))
 
+;; Make M-Backspace work on CamelCase
+(use-package subword-mode
+  :hook c-mode
+  :hook c++-mode
+  :hook java-mode)
 
-;; ;;; Buck build system
-
-;; (eval-when-compile (require 'cl-lib))   ; cl-assert
-
-;; (defun sol--update-flycheck-include-dirs ()
-;;   (let ((dirs (sol--collect-generated-include-dirs (buffer-file-name))))
-;;     (setq-local flycheck-clang-include-path
-;;                 (append flycheck-clang-include-path dirs))
-;;     (setq-local flycheck-gcc-include-path
-;;                 (append flycheck-clang-include-path dirs))))
-
-;; (defun sol--collect-generated-include-dirs (&optional filename)
-;;   (let ((buck-out-directory (sol--find-buck-root filename)))
-;;     (when buck-out-directory
-;;       (directory-files-recursively (concat buck-out-directory "gen")
-;;                                    "^include$\\|^.*#.*,.*headers.*$"
-;;                                    t))))
-
-;; (defun sol--find-file-upwards (needle &optional directory levels)
-;;   (cl-assert (equal (file-name-nondirectory needle) needle))
-;;   (unless directory
-;;     (setq directory (file-name-directory
-;;                      (directory-file-name (buffer-file-name)))))
-;;   (setq levels (or levels 15))
-;;   (cond ((<= levels 0) nil)
-;;         (t
-;;          (let ((candidate (concat directory needle)))
-;;            (cond ((file-exists-p candidate) candidate)
-;;                  (t
-;;                   (sol--find-file-upwards needle
-;;                                           (file-name-directory
-;;                                            (directory-file-name directory))
-;;                                           (1- levels))))))))
-
-;; (defvar-local sol--buck-root-cached nil)
-
-;; (defun sol--find-buck-root (&optional filename levels)
-;;   (if (and sol--buck-root-cached
-;;            (file-exists-p sol--buck-root-cached))
-;;       sol--buck-root-cached
-;;     (let ((it (sol--find-file-upwards "buck-out" filename levels)))
-;;       (when it
-;;         (setq-local sol--buck-root-cached
-;;                     (file-name-as-directory it))))))
-
-;; ;;; From https://github.com/lunaryorn/old-emacs-configuration/blob/master/lisp/flycheck-virtualenv.el (GPL3)
-;; (defun flycheck-virtualenv-executable-find (executable)
-;;   "Find an EXECUTABLE in the current virtualenv if any."
-;;   (if (bound-and-true-p python-shell-virtualenv-root)
-;;       (let ((exec-path (python-shell-calculate-exec-path)))
-;;         (executable-find executable))
-;;     (executable-find executable)))
-
-;; (defun sol--update-virtualenv-path ()
-;;   (let ((buck-out-directory (sol--find-buck-root (buffer-file-name))))
-;;     (when buck-out-directory
-;;       (let ((candidate (concat buck-out-directory "gen/common/python/venv/")))
-;;         (when (file-exists-p candidate)
-;;           (setq-local python-shell-virtualenv-root candidate))))))
-
-;;; Projectile
+;;; Project & Projectile
 
 (use-package projectile
   :ensure t
   :demand t       ; always load for (featurep 'projectile) in lsp-mode
   :bind-keymap
-  ("C-c p" . projectile-command-map))
-
-
-;;; LSP
-
-(use-package ccls
-  :ensure t)
-
-(use-package lsp-mode
-  :ensure t
-  :after (ccls)
+  ("C-c p" . projectile-command-map)
   :config
-  (setq-default lsp-log-io t)
-  (setq-default lsp-auto-guess-root t)
-  (setq-default lsp-prefer-capf t)                  ; we do our own setup
-  (setq-default lsp-enable-completion-at-point nil) ;  for company-mode
-  (setq-default lsp-prefer-flymake t)
-  (setq-default lsp-enable-xref t)
-  (setq-default lsp-eldoc-render-all nil)
-  (setq-default lsp-eldoc-hook '(trittweiler:lsp-eldoc))
-  (setq-default lsp-signature-auto-activate nil)
-  (setq-default lsp-signature-render-documentation nil)
-  (setq-default lsp-clients-clangd-args '("-background-index"))
-  (use-package company-lsp)
+  (add-hook 'project-find-functions  ; eglot uses `project-current`
+            (lambda (dir)
+              (let ((root (projectile-project-root dir)))
+                (when root
+                   (cons 'vc root))))))
+
+
+
+(use-package eglot
+  :ensure t
+  :pin manual                           ; ~/src/open-source/eglot.git
   :init
-  (require 'ccls)
-  (add-hook 'c++-mode-hook #'lsp)
-  (add-hook 'c-mode-hook #'lsp)
-  (add-hook 'scala-mode-hook #'lsp)
-  (add-hook 'python-mode-hook #'lsp))
-
-(defun trittweiler:lsp-eldoc ()
-  "Display signature info (based on `textDocument/signatureHelp')"
-  (lsp-request-async "textDocument/signatureHelp"
-                     (lsp--text-document-position-params)
-                     #'(lambda (signature)
-                         (let ((message (lsp--signature->message signature)))
-                           (when (s-present? message)
-                             (message "[%s]" message)
-                             (lsp--eldoc-message
-                              ;; Remove those pesky "1/1 "
-                              (replace-regexp-in-string "^[0-9/|│ ]*" "" message)))))
-                     :cancel-token :signature))
-
-
-
-(use-package company-lsp
-  :ensure t
-  :commands company-lsp
+  (add-to-list 'load-path "~/src/open-source/elisp/eglot.git/")
   :config
-  (add-to-list 'company-backends 'company-lsp))
+  (add-to-list 'eglot-server-programs
+               '((c++-mode c-mode) . ("clangd"
+                                      "--background-index"
+                                      "--log=info" "--pretty"
+                                      "--clang-tidy"
+                                      )))
+  (add-to-list 'eglot-server-programs
+               '(python-mode . ("pyls" "-v")))
+  :hook ((python-mode c-mode-common) . eglot-ensure))
+
 
 (use-package flymake
   :ensure t
   :bind (:map flymake-mode-map
               ("M-n" . flymake-goto-next-error)
               ("M-p" . flymake-goto-prev-error)))
-
-
-;;; Scala
-
-(use-package scala-mode
-  :ensure t
-  :mode "\\.s\\(cala\\|bt\\)$"
-  :config
-  (setq-default scala-indent:align-parameters t)
-  (setq-default scala-indent:align-forms t)
-  )
-
-(use-package sbt-mode
-  :ensure t
-  :commands sbt-start sbt-command
-  :config
-  ;; WORKAROUND: https://github.com/ensime/emacs-sbt-mode/issues/31
-  ;; allows using SPACE when in the minibuffer
-  (substitute-key-definition
-   'minibuffer-complete-word
-   'self-insert-command
-   minibuffer-local-completion-map))
-
-
-;;; Python
-
-;; (use-package elpy
-;;   :ensure t)
 
 
 ;;; GDB
@@ -392,6 +290,9 @@
          ("\\.markdown\\'" . markdown-mode))
   :init (setq markdown-command "markdown"))
 
+(use-package vmd-mode
+  :ensure t)
+
 (use-package protobuf-mode
   :ensure t)
 
@@ -403,4 +304,9 @@
   :bind (("s-g" . magit-file-dispatch))
   :init
   (add-hook 'git-commit-setup-hook 'git-commit-turn-on-flyspell)
-  (setq-default flyspell-issue-message-flag nil))
+  (setq-default flyspell-issue-message-flag nil)
+  (setq-default magit-diff-refine-hunk 'all))
+
+;;;
+
+(provide 'settings)
