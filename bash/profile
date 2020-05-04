@@ -17,13 +17,13 @@ for dir in ${HOME}/.local/software/**/bin; do
 done
 
 # Support ~/.local/bin/ for example used by pip
-PATH="${HOME}/.local/bin":"${PATH}"
+PATH="${HOME}"/.local/bin:"${PATH}"
 
-for dir in ${HOME}/.local/**/man; do
+for dir in ${HOME}/.local/software/**/man ${HOME}/.local/share/man; do
     MANPATH="${dir}":"${MANPATH}"
 done
 
-for dir in ${HOME}/.local/**/info; do
+for dir in ${HOME}/.local/software/**/info ${HOME}/.local/share/info; do
     INFOPATH="${dir}":"${INFOPATH}"
 done
 
