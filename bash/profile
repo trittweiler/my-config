@@ -27,3 +27,8 @@ for dir in ${HOME}/.local/software/**/info ${HOME}/.local/share/info; do
     INFOPATH="${dir}":"${INFOPATH}"
 done
 
+for dir in ${HOME}/.local/software/**/share ${HOME}/.local/share; do
+    XDG_DATA_DIRS="${dir}":"${XDG_DATA_DIRS}"
+done
+
+export PATH MANPATH INFOPATH XDG_DATA_DIRS
