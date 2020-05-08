@@ -3,49 +3,36 @@
 ;;; Use MELPA and use-package.el
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
-(package-initialize)
-(package-install 'use-package)
+(unless (package-installed-p 'use-package)
+  (package-initialize)
+  (package-refresh-contents)
+  (package-install 'use-package))
 
 (eval-when-compile
   (require 'use-package))
+
+(require 'rx)
 
 ;;; Add load-path to lisp packages part of my git repo.
 (when load-file-name
   (add-to-list 'load-path (file-name-directory load-file-name)))
 
+;;; If Emacs was installed locally, add the standard site-lisp
+;;; directory because the OS packages may have placed emacs stuff
+;;; there. E.g. cmake-mode.
+(dolist (dir (cons "/usr/share/emacs/site-lisp"
+                   (directory-files "/usr/share/emacs/site-lisp"
+                                    t nil t)))
+  (when (and (file-accessible-directory-p dir)
+             (not (string-match-p (rx "/" (or "." "..") eol) dir)))
+    (add-to-list 'load-path dir)))
+
+
 ;;; Appearance
 
 (set-frame-font "Cousine 10" nil t)
 
-;;; General
-
-(tool-bar-mode -1)
-(scroll-bar-mode -1)
-(column-number-mode 1)
-
-(setq-default load-prefer-newer t)
-(setq-default indent-tabs-mode nil)
-(setq-default truncate-lines t)
-(setq-default tab-always-indent 'complete)
-(setq-default require-final-newline t)
-(setq-default sentence-end-double-space nil)
-
-(let ((programming-mode-hooks
-       '(c-mode-common-hook python-mode-hook lisp-mode-hook emacs-lisp-mode-hook)))
-  (dolist (h programming-mode-hooks)
-    (add-hook h (lambda ()
-                  (setq-local show-trailing-whitespace t)))))
-
-;; M-k to kill line from point to beginning of line. (Reverse of C-k)
-(global-set-key (kbd "M-k")
-                (lambda () (interactive) (kill-line 0)))
-
-(use-package whitespace-cleanup-mode
-  :ensure t
-  :config
-  (global-whitespace-cleanup-mode))
-
-;;; Color Theme
+;; Color Theme
 
 (use-package solarized-theme
   :ensure t
@@ -61,6 +48,31 @@
   ;;          (custom-theme-set-faces 'solarized-light
   ;;                                  `(font-lock-constant-face ((,class (:foreground ,blue)))))))
   )
+
+;;; General
+
+(tool-bar-mode -1)
+(when window-system
+  (scroll-bar-mode -1))
+(column-number-mode 1)
+
+(setq-default load-prefer-newer t)
+(setq-default indent-tabs-mode nil)
+(setq-default truncate-lines t)
+(setq-default tab-always-indent 'complete)
+(setq-default require-final-newline t)
+(setq-default sentence-end-double-space nil)
+
+(let ((programming-mode-hooks
+       '(c-mode-common-hook python-mode-hook lisp-mode-hook emacs-lisp-mode-hook)))
+  (dolist (h programming-mode-hooks)
+    (add-hook h (lambda ()
+                  (setq-local show-trailing-whitespace t)))))
+
+(use-package whitespace-cleanup-mode
+  :ensure t
+  :config
+  (global-whitespace-cleanup-mode))
 
 
 ;;; Window/Frame movement
@@ -78,24 +90,16 @@
   :config
   (winner-mode +1))
 
+;;; Some custom key bindings
+
 (use-package find-file
   :bind (("C-x C-o" . 'ff-find-other-file))
   :init
   (setq-default ff-always-in-other-window t))
 
-;; (use-package color-moccur
-;;   :ensure t
-;;   :commands (isearch-moccur isearch-all)
-;;   :bind (("M-s O" . moccur)
-;;          :map isearch-mode-map
-;;          ("M-o" . isearch-moccur)
-;;          ("M-O" . isearch-moccur-all))
-;;   :init
-;;   (setq isearch-lazy-highlight t)
-;;   :config
-;;   (use-package moccur-edit
-;;     :ensure t))
-
+;; M-k to kill line from point to beginning of line. (Reverse of C-k)
+(global-set-key (kbd "M-k")
+                (lambda () (interactive) (kill-line 0)))
 
 ;; Fn-o => ö, Fn-u => ü, Fn-a => ä
 (global-set-key (kbd "<kp-6>")
@@ -145,19 +149,29 @@
   (add-hook 'company-mode-hook
             (lambda ()
               (add-hook 'completion-at-point-functions
-                        (lambda ()
-                          (lambda () (company-complete)))
+                        (lambda () #'company-complete)
                         nil
                         t))))
 
-;;; which-key
-
-(use-package which-key
+(use-package ivy
   :ensure t
   :config
-  (setq-default which-key-idle-delay 0.85)
-  (setq-default which-key-idle-secondary-delay 0.5)
-  (which-key-mode 1))
+  (setq-default ivy-use-virtual-buffers t)
+  (ivy-mode 1))
+
+(use-package swiper
+  :after (ivy)
+  :ensure t
+  :bind ("C-s" . swiper))
+
+;;; which-key
+
+;; (use-package which-key
+;;   :ensure t
+;;   :config
+;;   (setq-default which-key-idle-delay 0.85)
+;;   (setq-default which-key-idle-secondary-delay 0.5)
+;;   (which-key-mode 1))
 
 ;;; Lice
 
@@ -206,7 +220,8 @@
 
 (use-package macrostep
   :ensure t
-  :bind ("C-c C-m" . macrostep-expand)
+  :bind (:map emacs-lisp-mode-map
+         ("C-c C-m" . macrostep-expand))
   :config
   (setq-default macrostep-expand-in-separate-buffer t))
 
@@ -249,10 +264,12 @@
 
 
 (use-package eglot
-  :ensure t
+  :demand t
+  :ensure nil
   :pin manual                           ; ~/src/open-source/eglot.git
   :init
-  (add-to-list 'load-path "~/src/open-source/elisp/eglot.git/")
+  (add-to-list 'load-path
+               (expand-file-name "~/src/open-source/elisp/eglot.git/"))
   :config
   (add-to-list 'eglot-server-programs
                '((c++-mode c-mode) . ("clangd"
@@ -278,6 +295,9 @@
 
 
 ;;; Misc modes
+
+(use-package cmake-mode
+  :pin manual)                     ; comes from Ubuntu `cmake' package
 
 (use-package bazel-mode
   :ensure t)
