@@ -327,6 +327,14 @@
   (setq-default flyspell-issue-message-flag nil)
   (setq-default magit-diff-refine-hunk 'all))
 
+(use-package org
+  :ensure t
+  :bind (:map org-mode-map
+          ("S-<left>"  . windmove-left)
+          ("S-<right>" . windmove-right)
+          ("S-<up>"    . windmove-up)
+          ("S-<down>"  . windmove-down)))
+
 ;;;
 
 (provide 'settings)
