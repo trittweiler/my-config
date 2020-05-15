@@ -268,6 +268,7 @@
   (add-to-list 'load-path
                (expand-file-name "~/src/open-source/elisp/eglot.git/"))
   :config
+  (setq-default eglot-events-buffer-size nil)
   (add-to-list 'eglot-server-programs
                '((c++-mode c-mode) . ("clangd"
                                       "--background-index"
