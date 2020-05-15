@@ -153,10 +153,23 @@
                         nil
                         t))))
 
+(defun trittweiler:dired-buffer-p (name)
+  "Return non-nil if STR names a Dired buffer."
+  (let ((buf (get-buffer name)))
+    (when buf
+      (eq (buffer-local-value 'major-mode buf) 'dired-mode))))
+
 (use-package ivy
   :ensure t
+  :bind (:map ivy-minibuffer-map
+          ("TAB" . ivy-partial))
   :config
   (setq-default ivy-use-virtual-buffers t)
+  (setq-default ivy-on-del-error-function nil)
+  (setq-default ivy-count-format "(%d/%d) ")
+  (add-to-list 'ivy-ignore-buffers #'trittweiler:dired-buffer-p)
+  :init
+  (setq-default enable-recursive-minibuffers t)
   (ivy-mode 1))
 
 (use-package swiper
