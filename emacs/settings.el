@@ -260,22 +260,6 @@
   :hook c++-mode
   :hook java-mode)
 
-;;; Project & Projectile
-
-(use-package projectile
-  :ensure t
-  :demand t       ; always load for (featurep 'projectile) in lsp-mode
-  :bind-keymap
-  ("C-c p" . projectile-command-map)
-  :config
-  (add-hook 'project-find-functions  ; eglot uses `project-current`
-            (lambda (dir)
-              (let ((root (projectile-project-root dir)))
-                (when root
-                   (cons 'vc root))))))
-
-
-
 (use-package eglot
   :demand t
   :ensure nil
