@@ -1,3 +1,5 @@
+# -*- mode:conf -*-
+
 [push]
         default = upstream
 [color "diff"]
@@ -6,7 +8,9 @@
         wsErrorHighlight = all
 
 [alias]
+        each = submodule foreach
         cleanall = !git clean -dxff && git submodule foreach --recursive "git clean -dxff"
         lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
-        root = rev-parse --show-toplevel
         logline = log --color=always --pretty=format:'%Cred%h%Creset %C(bold blue)%an%Creset %s  %Cgreen[%cr]%C(yellow)%d%Creset' --abbrev-commit
+        recommit = !git commit -F "$(git rev-parse --git-dir)/COMMIT_EDITMSG" --edit
+        root = rev-parse --show-toplevel
