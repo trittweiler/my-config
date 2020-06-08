@@ -21,6 +21,9 @@ declare -a packages=(
     clang-tidy-9
     clang-tools-9
     clangd-9
+    errno                       # convert errno to numbers
+    lldb-9
+    lld-9
     htop
     libgif-dev			# for compiling Emacs
     libgtk-3-dev		# ditto
