@@ -73,6 +73,7 @@ declare -a llvm_binaries=(
 )
 
 declare -a clang_binaries=(
+    # Note: "clang" is implicitly added as the master.
     clang++
     clang-apply-replacements
     clang-change-namespace
