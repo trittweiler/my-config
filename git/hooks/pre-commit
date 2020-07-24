@@ -1,0 +1,13 @@
+#!/bin/sh
+
+branch="$(git rev-parse --abbrev-ref HEAD)"
+
+default_pre_commit="/usr/share/git-core/templates/hooks/pre-commit.sample"
+if [ -r "${default_pre_commit}" ]; then
+   sh "${default_pre_commit}" || exit 1
+fi
+
+if [ "$branch" = "master" ]; then
+  echo "pre-commit: You can't commit directly to master branch. Skip with --no-verify." >&2
+  exit 1
+fi

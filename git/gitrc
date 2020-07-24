@@ -6,7 +6,6 @@
         whitespace = red reverse
 [diff]
         wsErrorHighlight = all
-
 [alias]
         each = submodule foreach
         cleanall = !git clean -dxff && git submodule foreach --recursive "git clean -dxff"
