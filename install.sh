@@ -32,6 +32,7 @@ declare -a packages=(
     libxpm-dev			# ditto
     screen
     texinfo			# makeinfo
+    wmctrl                      # set window focus from shell
 )
 
 set -x

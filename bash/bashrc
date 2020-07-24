@@ -3,7 +3,9 @@
 # This file is supposed to be sourced from ~/.bashrc. It contains
 # customizations that are applicable for interactive shells.
 
-export EDITOR=emacsclient
+mycfg_root="$(dirname "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")" )")"
+
+source "${mycfg_root}"/bash/prompt/loudprompt.sh
 
 shopt -s globstar # Enable globbing of **
 
@@ -21,17 +23,32 @@ for version in 9 8 7; do
     fi
 done
 
+export GCC_COLORS='error=01;31;05:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
+export EDITOR="${mycfg_root}"/bin/emacsclient.sh
+
 alias l="git log --stat"
 alias s="git status"
+alias sa="git status -bs; git submodule foreach git status -bs"
 alias d="git diff"
-alias a="git add"
+alias a="git add -u"
 alias c="git commit"
+alias e="${EDITOR} -n"
 
-function find_source_root()
+function f()
 {
-    dirname "$(readlink -f "${BASH_SOURCE[0]}")"
+    local -a args
+    if [ $# -eq 0 ]; then
+        echo "Usage: $0 <pattern>.." >&2
+        return 1
+    fi
+    while [ $# -gt 1 ]; do
+        args+=("-iname" "${1}" "-or")
+        shift 1
+    done
+    args+=("-iname" "${1}")
+    echo find . "${args[@]}" >&2
+    find . "${args[@]}"
 }
 
-source "$(find_source_root)"/prompt/loudprompt.sh
 
-export GCC_COLORS='error=01;31;05:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
+unset mycfg_root
