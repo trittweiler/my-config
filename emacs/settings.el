@@ -34,20 +34,17 @@
 
 ;; Color Theme
 
-(use-package solarized-theme
+;; (use-package solarized-theme
+;;   :ensure t
+;;   :init
+;;   (setq solarized-distinct-fringe-background t)
+;;   (setq solarized-high-contrast-mode-line t)
+;;   (setq solarized-use-less-bold t))
+
+(use-package gruvbox-theme
   :ensure t
-  :init
-  (setq solarized-distinct-fringe-background t)
-  (setq solarized-high-contrast-mode-line t)
-  (setq solarized-use-less-bold t)
   :config
-  (load-theme 'solarized-light t)
-  ;; Yuck. This has to use eval after changing the macro's signature:
-  ;;   https://github.com/bbatsov/solarized-emacs/commit/b47d513aa4a452ae7875b65c3f7ee006444711c8
-  ;; (eval `(solarized-with-color-variables 'light ,solarized-light-color-palette-alist
-  ;;          (custom-theme-set-faces 'solarized-light
-  ;;                                  `(font-lock-constant-face ((,class (:foreground ,blue)))))))
-  )
+  (load-theme 'gruvbox-light-soft t))
 
 ;;; General
 
