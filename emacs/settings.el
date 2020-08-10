@@ -164,6 +164,7 @@
   :config
   (setq-default ivy-use-virtual-buffers t)
   (setq-default ivy-on-del-error-function nil)
+  (setq-default ivy-use-selectable-prompt t)
   (setq-default ivy-count-format "(%d/%d) ")
   (add-to-list 'ivy-ignore-buffers #'trittweiler:dired-buffer-p)
   :init
@@ -173,7 +174,21 @@
 (use-package swiper
   :after (ivy)
   :ensure t
-  :bind ("C-s" . swiper))
+  :bind (("C-s" . swiper)
+         ("C-r" . swiper-backward)))
+
+(use-package counsel
+  :after (ivy)
+  :ensure t
+  :config
+  (setq-default counsel-find-file-at-point t)
+  (ivy-configure 'counsel-describe-symbol
+    :initial-input ""      ; i.e. not "^" as its in the default config
+    :sort-fn #'ivy-string<)
+  (ivy-configure 'counsel-M-x
+    :initial-input ""      ; i.e. not "^" as its in the default config
+    :display-transformer-fn #'counsel-M-x-transformer)
+  (counsel-mode))
 
 ;;; which-key
 
