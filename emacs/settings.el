@@ -60,11 +60,12 @@
 (setq-default require-final-newline t)
 (setq-default sentence-end-double-space nil)
 
-(let ((programming-mode-hooks
-       '(c-mode-common-hook python-mode-hook lisp-mode-hook emacs-lisp-mode-hook)))
-  (dolist (h programming-mode-hooks)
-    (add-hook h (lambda ()
-                  (setq-local show-trailing-whitespace t)))))
+(when window-system
+  (setq-default confirm-kill-emacs 'yes-or-no-p))
+
+(add-hook 'prog-mode-hook
+          (lambda ()
+            (setq-local show-trailing-whitespace t)))
 
 (use-package whitespace-cleanup-mode
   :ensure t
