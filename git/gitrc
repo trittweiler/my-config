@@ -13,3 +13,4 @@
         logline = log --color=always --pretty=format:'%Cred%h%Creset %C(bold blue)%an%Creset %s  %Cgreen[%cr]%C(yellow)%d%Creset' --abbrev-commit
         recommit = !git commit -F "$(git rev-parse --git-dir)/COMMIT_EDITMSG" --edit
         root = rev-parse --show-toplevel
+        lsall = ls-files --recurse-submodules
