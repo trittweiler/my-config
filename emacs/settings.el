@@ -242,7 +242,7 @@
 ;;; Eldoc & Macrostep
 
 (use-package eldoc
-  :hook ((python-mode c-mode-common emacs-lisp-mode) . eldoc-mode))
+  :config (global-eldoc-mode 1))
 
 (use-package macrostep
   :ensure t
