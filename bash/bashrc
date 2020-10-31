@@ -15,13 +15,11 @@ for script in ${HOME}/.local/software/**/bash-completions/*; do
     fi
 done
 
-for version in 9 8 7; do
-    clang_bash_completions=/usr/lib/llvm-${version}/share/clang/bash-autocomplete.sh
-    if [ -r "${clang_bash_completions}" ]; then
-        source "${clang_bash_completions}"
-        break
-    fi
-done
+# /usr/lib/llvm is a symlink to the currently activated version.
+clang_bash_completions=/usr/lib/llvm/share/clang/bash-autocomplete.sh
+if [ -r "${clang_bash_completions}" ]; then
+    source "${clang_bash_completions}"
+fi
 
 export GCC_COLORS='error=01;31;05:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
 export EDITOR="${mycfg_root}"/bin/emacsclient.sh
